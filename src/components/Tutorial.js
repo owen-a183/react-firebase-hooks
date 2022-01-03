@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import TutorialDataService from "../services/TutorialService";
+// import { useList } from "react-firebase-hooks/database";
 
 const Tutorial = (props) => {
   const initialTutorialState = {
@@ -7,12 +8,22 @@ const Tutorial = (props) => {
     title: "",
     description: "",
     published: false,
+    author: "",
+    bookCode: "",
   };
+
+  // const [tutorials, loading] = useList(TutorialDataService.getAll());
   const [currentTutorial, setCurrentTutorial] = useState(initialTutorialState);
   const [message, setMessage] = useState("");
+  // const [bookCodeNum, setBookCodeNum] = useState(0)
+  // const [titleNum, setTitleNum] = useState(0)
+  // const [bookCodeView, setBookCodeView] = useState(null)
+  // const [titleView, setTitleView] = useState(null)
+
 
   const { tutorial } = props;
-  if (currentTutorial.key !== tutorial.key) {
+  if (currentTutorial?.key !== tutorial.key) {
+    setCurrentTutorial(null)
     setCurrentTutorial(tutorial);
     setMessage("");
   }
@@ -20,23 +31,30 @@ const Tutorial = (props) => {
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setCurrentTutorial({ ...currentTutorial, [name]: value });
+    // setSearchParam()
   };
 
-  const updatePublished = (status) => {
-    TutorialDataService.update(currentTutorial.key, { published: status })
-      .then(() => {
-        setCurrentTutorial({ ...currentTutorial, published: status });
-        setMessage("The status was updated successfully!");
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  };
+  // const setSearchParam = () => {
+  //   let inputVal = document.getElementById("bookCode").value
+  //   let inputValTitle = document.getElementById("title").value
+    
+  //   const filteredData = tutorials.filter(tutorial => tutorial?.val().bookCode.toLowerCase().includes(inputVal.toLowerCase()))
+  //   const filteredData2 = tutorials.filter(tutorial => tutorial?.val().title.toLowerCase().includes(inputValTitle.toLowerCase()))
+
+  //   setBookCodeNum(filteredData.length)
+  //   setBookCodeView(filteredData.map(data => data?.val().bookCode))
+
+  //   setTitleNum(filteredData2.length)
+  //   setTitleView(filteredData2.map(data => data?.val().title))
+  // }
+
 
   const updateTutorial = () => {
     const data = {
       title: currentTutorial.title,
       description: currentTutorial.description,
+      author: currentTutorial.author,
+      bookCode: currentTutorial.bookCode,
     };
 
     TutorialDataService.update(currentTutorial.key, data)
@@ -49,23 +67,38 @@ const Tutorial = (props) => {
   };
 
   const deleteTutorial = () => {
-    TutorialDataService.remove(currentTutorial.key)
+    var confirm = window.confirm("Really want to delete?")
+    if (confirm){
+      TutorialDataService.remove(currentTutorial.key)
       .then(() => {
         props.refreshList();
       })
       .catch((e) => {
         console.log(e);
       });
+    }
+    else{
+    }
   };
 
   return (
     <div>
       {currentTutorial ? (
         <div className="edit-form">
-          <h4>Tutorial</h4>
+          <h4>Book Detail</h4>
           <form>
+          <div className="form-group">
+              <input
+                type="text"
+                className="form-control"
+                id="bookCode"
+                name="bookCode"
+                value={currentTutorial.bookCode}
+                onChange={handleInputChange}
+                placeholder="Book Code"
+              />
+            </div>
             <div className="form-group">
-              <label htmlFor="title">Title</label>
               <input
                 type="text"
                 className="form-control"
@@ -73,10 +106,21 @@ const Tutorial = (props) => {
                 name="title"
                 value={currentTutorial.title}
                 onChange={handleInputChange}
+                placeholder="Title"
               />
             </div>
             <div className="form-group">
-              <label htmlFor="description">Description</label>
+              <input
+                type="text"
+                className="form-control"
+                id="author"
+                name="author"
+                value={currentTutorial.author}
+                onChange={handleInputChange}
+                placeholder="Author"
+              />
+            </div>
+            <div className="form-group">
               <input
                 type="text"
                 className="form-control"
@@ -84,18 +128,12 @@ const Tutorial = (props) => {
                 name="description"
                 value={currentTutorial.description}
                 onChange={handleInputChange}
+                placeholder="Description"
               />
-            </div>
-
-            <div className="form-group">
-              <label>
-                <strong>Status:</strong>
-              </label>
-              {currentTutorial.published ? "Published" : "Pending"}
             </div>
           </form>
 
-          {currentTutorial.published ? (
+          {/* {currentTutorial.published ? (
             <button
               className="badge badge-primary mr-2"
               onClick={() => updatePublished(false)}
@@ -109,12 +147,11 @@ const Tutorial = (props) => {
             >
               Publish
             </button>
-          )}
-
+          )} */}
+          <div style={{"text-align" : "right"}}>
           <button className="badge badge-danger mr-2" onClick={deleteTutorial}>
             Delete
           </button>
-
           <button
             type="submit"
             className="badge badge-success"
@@ -122,6 +159,7 @@ const Tutorial = (props) => {
           >
             Update
           </button>
+          </div>
           <p>{message}</p>
         </div>
       ) : (

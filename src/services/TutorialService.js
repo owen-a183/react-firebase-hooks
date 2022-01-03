@@ -1,6 +1,11 @@
 import firebase from "../firebase";
 
-const db = firebase.ref("/tutorials");
+// var curDate = new Da/te().toLocaleString()
+const db = firebase.ref("/tutorials")
+// db.orderByChild("lastUpdated").startAt(curDate).on("child_added", function(snapshot) {
+//   console.log(snapshot.key)
+// });
+// console.log(db)
 
 const getAll = () => {
   return db;
