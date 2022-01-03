@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import TutorialDataService from "../services/TutorialService";
-// import { useList } from "react-firebase-hooks/database";
+import TutorialDataService from "../../services/TutorialService";
 
-const Tutorial = (props) => {
+const EditModal = (props) => {
   const initialTutorialState = {
     key: null,
     title: "",
@@ -10,17 +9,12 @@ const Tutorial = (props) => {
     published: false,
     author: "",
     bookCode: "",
+    createdDate: "",
+    updatedDate: "",
   };
 
-  // const [tutorials, loading] = useList(TutorialDataService.getAll());
   const [currentTutorial, setCurrentTutorial] = useState(initialTutorialState);
   const [message, setMessage] = useState("");
-  // const [bookCodeNum, setBookCodeNum] = useState(0)
-  // const [titleNum, setTitleNum] = useState(0)
-  // const [bookCodeView, setBookCodeView] = useState(null)
-  // const [titleView, setTitleView] = useState(null)
-
-
   const { tutorial } = props;
   if (currentTutorial?.key !== tutorial.key) {
     setCurrentTutorial(null)
@@ -31,63 +25,43 @@ const Tutorial = (props) => {
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setCurrentTutorial({ ...currentTutorial, [name]: value });
-    // setSearchParam()
   };
 
-  // const setSearchParam = () => {
-  //   let inputVal = document.getElementById("bookCode").value
-  //   let inputValTitle = document.getElementById("title").value
-    
-  //   const filteredData = tutorials.filter(tutorial => tutorial?.val().bookCode.toLowerCase().includes(inputVal.toLowerCase()))
-  //   const filteredData2 = tutorials.filter(tutorial => tutorial?.val().title.toLowerCase().includes(inputValTitle.toLowerCase()))
-
-  //   setBookCodeNum(filteredData.length)
-  //   setBookCodeView(filteredData.map(data => data?.val().bookCode))
-
-  //   setTitleNum(filteredData2.length)
-  //   setTitleView(filteredData2.map(data => data?.val().title))
-  // }
-
-
   const updateTutorial = () => {
+    var curDate = new Date().toLocaleString('id-ID', {
+      weekday: 'short', // "Sat"
+      day: '2-digit', // "01"
+      month: 'short', // "Jun"
+      year: 'numeric', // "2019"
+      hour: 'numeric',
+      minute: 'numeric'
+    })
     const data = {
       title: currentTutorial.title,
       description: currentTutorial.description,
       author: currentTutorial.author,
       bookCode: currentTutorial.bookCode,
+      createdDate: currentTutorial.createdDate,
+      updatedDate: curDate,
     };
 
     TutorialDataService.update(currentTutorial.key, data)
       .then(() => {
-        setMessage("The tutorial was updated successfully!");
+        setMessage("The book was updated successfully!");
       })
       .catch((e) => {
         console.log(e);
       });
-  };
-
-  const deleteTutorial = () => {
-    var confirm = window.confirm("Really want to delete?")
-    if (confirm){
-      TutorialDataService.remove(currentTutorial.key)
-      .then(() => {
-        props.refreshList();
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-    }
-    else{
-    }
   };
 
   return (
     <div>
       {currentTutorial ? (
-        <div className="edit-form">
-          <h4>Book Detail</h4>
+        <div 
+          class="flex flex-col w-full mx-auto p-4 border border-gray-200 bg-white shadow"
+        >
           <form>
-          <div className="form-group">
+            <div className="form-group">
               <input
                 type="text"
                 className="form-control"
@@ -132,44 +106,25 @@ const Tutorial = (props) => {
               />
             </div>
           </form>
-
-          {/* {currentTutorial.published ? (
+          <div style={{ "text-align": "right" }}>  
             <button
-              className="badge badge-primary mr-2"
-              onClick={() => updatePublished(false)}
+              type="submit"
+              class="px-3 py-2 rounded-md text-sm font-medium border-0 focus:outline-none focus:ring transition text-white bg-green-500 hover:bg-green-600 active:bg-green-700 focus:ring-green-300"
+              onClick={updateTutorial}
             >
-              UnPublish
+              Update
             </button>
-          ) : (
-            <button
-              className="badge badge-primary mr-2"
-              onClick={() => updatePublished(true)}
-            >
-              Publish
-            </button>
-          )} */}
-          <div style={{"text-align" : "right"}}>
-          <button className="badge badge-danger mr-2" onClick={deleteTutorial}>
-            Delete
-          </button>
-          <button
-            type="submit"
-            className="badge badge-success"
-            onClick={updateTutorial}
-          >
-            Update
-          </button>
           </div>
           <p>{message}</p>
         </div>
       ) : (
         <div>
           <br />
-          <p>Please click on a Tutorial...</p>
+          <p>Please click on a Book...</p>
         </div>
       )}
     </div>
   );
 };
 
-export default Tutorial;
+export default EditModal;
